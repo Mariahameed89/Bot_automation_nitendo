@@ -144,32 +144,22 @@
     </div>
 
     <script>
-        // Set the authentication password
-        const authPassword = 'Dikzakjes505';
+        // Set the authentication password (replace with your desired password)
+        const authPassword = 'Dikzakjes505'; // Set a real password here
 
-        // Check if the password is already saved in local storage
-        let savedPassword = localStorage.getItem('authPassword');
+        // Prompt the user for authentication
+        const userPassword = prompt('Please enter the password to access this page.');
 
-        if (savedPassword === authPassword) {
-            // If the saved password matches, show the dashboard
+        // Check if the user entered the correct password
+        if (userPassword === authPassword) {
+            // Render the page if the password is correct
             document.getElementById('dashboard').style.display = 'block';
         } else {
-            // Prompt the user to enter the password if not already saved
-            const userPassword = prompt('Please enter the password to access this page.');
+            // Show an error message if the password is incorrect
+            alert('Incorrect password. Access denied.');
 
-            if (userPassword === authPassword) {
-                // Save the correct password in local storage
-                localStorage.setItem('authPassword', userPassword);
-                // Display the dashboard
-                document.getElementById('dashboard').style.display = 'block';
-            } else {
-                // If the password is incorrect, deny access and redirect or hide content
-                alert('Incorrect password. Access denied.');
-                document.getElementById('dashboard').style.display = 'none';
-            }
         }
     </script>
-
 
 </body>
 
