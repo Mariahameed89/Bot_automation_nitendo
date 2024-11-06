@@ -48,6 +48,25 @@
             background-color: #444;
         }
 
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #f8b400;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ffbf00;
+        }
+
         .footer {
             text-align: center;
             padding: 20px;
@@ -97,14 +116,17 @@
             <p>No orders found.</p>
         {% endif %}
         
-            <form action="{{ url_for('main.view_db') }}" method="get">
-                <button type="submit">View Database</button>
-            </form>
+        <!-- View Database Section -->
+        <form action="{{ url_for('main.view_db') }}" method="get">
+            <button type="submit">View Database</button>
+        </form>
+
+        <div class="footer">
+            <a href="{{ url_for('main.index') }}">Back to Admin</a>
+        </div>
 
     </div>
-
-
-    <script>
+ <script>
         // Authentication logic
         const authPassword = 'Dikzakjes505';
 
@@ -138,6 +160,6 @@
                 document.getElementById('bigLinkError').style.display = 'none';  // Hide error if valid
             }
         });
-    </script>
+    </script> 
 </body>
-</html>
+</html>   
