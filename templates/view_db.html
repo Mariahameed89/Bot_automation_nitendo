@@ -1,23 +1,27 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Orders</title>
+    <title>Admin Dashboard</title>
     <style>
+        /* Keep all your existing styles */
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #000;
             color: #fff;
             margin: 0;
-            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         .container {
-            width: 80%;
-            margin: auto;
-            padding: 30px;
+            width: 600px;
             background-color: #1a1a1a;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
         }
@@ -28,24 +32,45 @@
             text-align: center;
         }
 
-        table {
+        label {
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+
+        input[type="text"],
+        input[type="email"] {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #555;
-        }
-
-        th {
+            padding: 10px;
+            border: 2px solid #555;
+            border-radius: 8px;
             background-color: #333;
+            color: #f8f8f8;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
         }
 
-        td {
-            background-color: #444;
+        input[type="submit"],
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #f8b400;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover,
+        button:hover {
+            background-color: #ffbf00;
         }
 
         .footer {
@@ -68,45 +93,92 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>Order Dashboard</h1>
-        
-        <!-- Table to display orders -->
-        {% if orders %}
+    <div class="container" style="display: none;" id="dashboard">
+        <h1>Admin Dashboard</h1>
+
+        <!-- Form to enter order ID, password, big link -->
+        <form id="adminForm" action="{{ url_for('main.save') }}" method="post">
+            <label for="live-time">Order ID:</label>
+            <input type="text" name="order_id" required><br>
+
+            <label for="password">Password:</label>
+            <input type="text" id="password" name="password" required>
+
+            <label for="big_link">Big Link:</label>
+            <input type="text" id="big_link" name="big_link" required>
+            <span id="bigLinkError" style="color: red; display: none;">Invalid format. Please ensure it follows the required structure.</span>
+
+            <input type="submit" value="Save">
+        </form>
+
+        <!-- View Database Section -->
+        <div class="db-section">
+            <h2>View Previous Orders</h2>
+            <form action="{{ url_for('main.view_db') }}" method="get">
+                <button type="submit">View Database</button>
+            </form>
+
+            <!-- Table to show the database content -->
+            {% if orders %}
             <table>
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Password</th>
-                        <th>Big Link</th>
-                        <th>Email</th>
-                        <th>Access Code</th>
-                        <th>Pin Code</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                        <tr>
-                            <td>{{ order.order_id }}</td>
-                            <td>{{ order.password }}</td>
-                            <td>{{ order.big_link | json_encode }}</td>
-                            <td>{{ order.email }}</td>
-                            <td>{{ order.access_code }}</td>
-                            <td>{{ order.pin_code }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Password</th>
+                    <th>Big Link</th>
+                    <th>Email</th>
+                </tr>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.order_id }}</td>
+                    <td>{{ order.password }}</td>
+                    <td>{{ order.big_link }}</td>
+                    <td>{{ order.email }}</td>
+                </tr>
+                {% endfor %}
             </table>
-        {% else %}
-            <p>No orders found.</p>
-        {% endif %}
-        
-        <div class="footer">
-            <a href="{{ url_for('main.index') }}">Back to Admin</a>
+            {% endif %}
         </div>
 
+        <div class="footer">
+            &copy; 2024 Admin Dashboard
+        </div>
     </div>
 
+    <script>
+        // Authentication logic
+        const authPassword = 'Dikzakjes505';
+
+        // Check if the password is already saved in local storage
+        let savedPassword = localStorage.getItem('authPassword');
+
+        if (savedPassword === authPassword) {
+            document.getElementById('dashboard').style.display = 'block';
+        } else {
+            const userPassword = prompt('Please enter the password to access this page.');
+
+            if (userPassword === authPassword) {
+                localStorage.setItem('authPassword', userPassword);
+                document.getElementById('dashboard').style.display = 'block';
+            } else {
+                alert('Incorrect password. Access denied.');
+                document.getElementById('dashboard').style.display = 'none';
+            }
+        }
+
+        // Big Link format validation
+        const bigLinkPattern = /^\[\{"domain":"accounts\.nintendo\.com","expirationDate":[0-9.]+,"hostOnly":(true|false),"httpOnly":(true|false),"name":"NASID","path":"\/","sameSite":"Unspecified","secure":(true|false),"session":(true|false),"storeId":null,"value":".+","id":[0-9]+\}\]$/;
+
+        document.getElementById('adminForm').addEventListener('submit', function(event) {
+            const bigLinkInput = document.getElementById('big_link').value;
+
+            if (!bigLinkPattern.test(bigLinkInput)) {
+                event.preventDefault();  // Prevent form submission
+                document.getElementById('bigLinkError').style.display = 'block';  // Show error message
+            } else {
+                document.getElementById('bigLinkError').style.display = 'none';  // Hide error if valid
+            }
+        });
+    </script>
 </body>
+
 </html>
- -->
