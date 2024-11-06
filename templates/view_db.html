@@ -114,9 +114,13 @@
         <!-- View Database Section -->
         <div class="db-section">
             <h2>View Previous Orders</h2>
-            <form action="{{ url_for('main.view_db') }}" method="get">
+<!--             <form action="{{ url_for('main.view_db') }}" method="get">
                 <button type="submit">View Database</button>
+            </form> -->
+            <form action="{{ url_for('main.view_db') }}" method="get" target="_blank">
+    <button type="submit">View Database</button>
             </form>
+
 
             <!-- Table to show the database content -->
             {% if orders %}
