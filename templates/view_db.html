@@ -97,9 +97,10 @@
             <p>No orders found.</p>
         {% endif %}
         
-<!--         <div class="footer">
-<!--             <a href="{{ url_for('index') }}">Back to Admin</a>
-<!--         </div> --> --> -->
+            <form action="{{ url_for('main.view_db') }}" method="get">
+                <button type="submit">View Database</button>
+            </form>
+
     </div>
 </body>
 </html>
