@@ -48,25 +48,6 @@
             background-color: #444;
         }
 
-        button {
-            width: 100%;
-            padding: 15px;
-            background-color: #f8b400;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #ffbf00;
-        }
-
         .footer {
             text-align: center;
             padding: 20px;
@@ -99,8 +80,6 @@
                         <th>Password</th>
                         <th>Big Link</th>
                         <th>Email</th>
-                        
-                        
                     </tr>
                 </thead>
                 <tbody>
@@ -110,7 +89,6 @@
                             <td>{{ order.password }}</td>
                             <td>{{ order.big_link }}</td>
                             <td>{{ order.email }}</td>
-                           
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -119,48 +97,11 @@
             <p>No orders found.</p>
         {% endif %}
         
-        <!-- View Database Section -->
-
-
         <div class="footer">
             <a href="{{ url_for('main.index') }}">Back to Admin</a>
         </div>
 
     </div>
- <script>
-        // Authentication logic
-        const authPassword = 'Dikzakjes505';
 
-        // Check if the password is already saved in local storage
-        let savedPassword = localStorage.getItem('authPassword');
-
-        if (savedPassword === authPassword) {
-            document.getElementById('dashboard').style.display = 'block';
-        } else {
-            const userPassword = prompt('Please enter the password to access this page.');
-
-            if (userPassword === authPassword) {
-                localStorage.setItem('authPassword', userPassword);
-                document.getElementById('dashboard').style.display = 'block';
-            } else {
-                alert('Incorrect password. Access denied.');
-                document.getElementById('dashboard').style.display = 'none';
-            }
-        }
-
-        // Big Link format validation
-        const bigLinkPattern = /^\[\{"domain":"accounts\.nintendo\.com","expirationDate":[0-9.]+,"hostOnly":(true|false),"httpOnly":(true|false),"name":"NASID","path":"\/","sameSite":"Unspecified","secure":(true|false),"session":(true|false),"storeId":null,"value":".+","id":[0-9]+\}\]$/;
-
-        document.getElementById('adminForm').addEventListener('submit', function(event) {
-            const bigLinkInput = document.getElementById('big_link').value;
-
-            if (!bigLinkPattern.test(bigLinkInput)) {
-                event.preventDefault();  // Prevent form submission
-                document.getElementById('bigLinkError').style.display = 'block';  // Show error message
-            } else {
-                document.getElementById('bigLinkError').style.display = 'none';  // Hide error if valid
-            }
-        });
-    </script> 
 </body>
-</html>   
+</html>
