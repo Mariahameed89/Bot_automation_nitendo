@@ -1,7 +1,7 @@
 import json
 import time
-from seleniumwire import webdriver
-# from selenium import webdriver
+#from seleniumwire import webdriver
+from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 
 from .models import Order
@@ -172,7 +172,7 @@ def bot_automation(order_id,driver):
                 print("5 digit pin sent to the customer.")
             except Exception as error:
                 print(f"Failed to send email: {error}")
-   
+
 
 
         except Exception as error:
