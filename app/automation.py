@@ -172,38 +172,7 @@ def bot_automation(order_id,driver):
                 print("5 digit pin sent to the customer.")
             except Exception as error:
                 print(f"Failed to send email: {error}")
-            try:
-
-                driver.get("https://ec.nintendo.com/my/devices/unlink")
-                password_filed = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.ID, "reauthenticate-form_pc_button_0"))
-                )
-                password_filed.send_keys(password)
-                print("Password enterd successfully")
-                ok_button = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.ID, "reauthenticate-form_pc_button_0"))
-                )
-                ok_button.click()
-                print("Continue button clicked!")
-
-                deregister = driver.find_element(By.CSS_SELECTOR, ".bg-nintendo-red")
-                deregister.click()
-                print("deregister button clicked")
-                confirm_button=WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, "button.bg-nintendo-red")))
-                confirm_button.click()
-                print("confirm button clicked")
-
-                final_button = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR, "button.bg-nintendo-red"))
-                )
-                final_button.click()
-                print("Account has been deregistered")
-
-
-            except:
-                print(f"error while deregistering:{error}")
-
+   
 
 
         except Exception as error:
