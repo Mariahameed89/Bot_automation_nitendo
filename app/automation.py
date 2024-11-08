@@ -1,9 +1,7 @@
 import json
 import time
-#from seleniumwire import webdriver
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-
 from .models import Order
 from .email_utils import send_pin_email
 from selenium.webdriver.common.by import By
@@ -11,13 +9,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-import random
 
-# separte method for browser initialization and return the driver object
-
-
-def bot_automation(order_id,driver):
-   
+# Separate method for browser initialization
+def bot_automation(order_id, driver):
     four_digit_code = None  # Initialize four_digit_code
     password = None
 
@@ -33,8 +27,6 @@ def bot_automation(order_id,driver):
 
         big_link = order.big_link
         password = order.password
-        
-            
 
         # Retrieve access code from the customer record
         access_order = Order.query.filter_by(order_id=order_id).first()
@@ -52,12 +44,9 @@ def bot_automation(order_id,driver):
         print(f"Order ID: {order_id}")
         print(f"Customer Email: {email}")
 
-       
         try:
             cookies = json.loads(big_link)
-
-            print("\nLoaded Cookies: ", cookies)
-            
+            print("\nLoaded Cookies:", cookies)
 
             for cookie in cookies:
                 expiration = int(cookie['expirationDate'])
@@ -70,90 +59,62 @@ def bot_automation(order_id,driver):
                     "httpOnly": cookie['httpOnly'],
                     "expiry": expiration,
                 }
-                
-            try:
-                driver.add_cookie(cookie_dict)
-                print("\nCookie added successfully.")
-            except Exception as e:
-                print(f"Failed to add cookie: {e}")
+
+                try:
+                    driver.add_cookie(cookie_dict)
+                    print("\nCookie added successfully.")
+                except Exception as e:
+                    print(f"Failed to add cookie: {e}")
 
             # Refresh to apply cookies
             driver.refresh()
 
+            ### User should now be logged in ###
 
-            ### At this point the user should be logged in automatically ###
-
-                
             print("Navigating to the access code page")
-            # Navigate to the target URL
             target_url = f"https://accounts.nintendo.com/login/device?access_key={access_code}"
             driver.get(target_url)
             print("Navigated successfully")
             time.sleep(1)
 
-            # Check if the page says You need to sign in again. Please restart the process from the beginning.
+            # Check for specific error messages in the page source
             if "restart the process from the beginning" in driver.page_source:
-                # throw an exception to exit the automation
                 raise Exception("You need to sign in again. Please restart the process from the beginning.")
-
-            # The access code may have expired. Please try again later.
-            if "The access code may have expired. Please try again later." in driver.page_source:
-                # throw an exception to exit the automation
-                raise Exception("The access code may have expired. Please try again later.")
-            
-            if "expired" in driver.page_source:
+            if "The access code may have expired" in driver.page_source or "expired" in driver.page_source:
                 print("Access code has expired. Exiting automation...")
                 return
 
+            # Enter password
             try:
-                # Wait until the password field is present and visible
                 password_field = WebDriverWait(driver, 2).until(
                     EC.visibility_of_element_located((By.ID, "reauthenticate-form_pc_input_0"))
                 )
-                print("First Password field found!")
-
-                # if field with that id is not found then search for reauthenticate-form_pc_input_0
-                if not password_field:
-                    password_field = WebDriverWait(driver, 2).until(
-                        EC.visibility_of_element_located((By.ID, "reauthenticate-form_pc_input_0"))
-                    )
-                    print("Second Password field found!")
-
-                # Enter password
                 password_field.send_keys(password)
                 print("Password entered successfully!")
-                
             except Exception as error:
                 raise Exception(f"Failed to enter password: {error}")
 
-            # Check for expired access code in page source
-            if "expired" in driver.page_source:
-                print("Access code has expired. Exiting automation...")
-                return
-
+            # Click the continue button
             try:
-                # Wait until the continue button is clickable and then click it
                 continue_button = WebDriverWait(driver, 10).until(
                     EC.element_to_be_clickable((By.ID, "reauthenticate-form_pc_button_0"))
                 )
                 continue_button.click()
                 print("Continue button clicked!")
-                
             except Exception as error:
                 raise Exception(f"Failed to click the continue button: {error}")
 
-            # Check for the "Select this account" button and click it if found
+            # Handle "Select this account" button if present
             try:
                 select_account_button = WebDriverWait(driver, 10).until(
                     EC.element_to_be_clickable((By.ID, "choose-connect-button"))
                 )
                 select_account_button.click()
                 print("Select this account button clicked!")
-                
             except Exception as error:
-                raise Exception(f"Select this account button not found: {error}")
+                print(f"Select this account button not found: {error}")
 
-            # Wait for the 5-digit code to appear
+            # Retrieve the 5-digit code
             try:
                 print("Waiting for the 5-digit code to appear...")
                 code_element = WebDriverWait(driver, 10).until(
@@ -162,25 +123,53 @@ def bot_automation(order_id,driver):
                 time.sleep(2)
                 four_digit_code = code_element.text
                 print(f"5-digit code is: {four_digit_code}")
-                print("5-digit code saved successfully!")
             except Exception as error:
                 print("5-digit code not found.")
 
             # Send the pin via email
             try:
-                # send_pin_email(email, four_digit_code, password)
-                print("5 digit pin sent to the customer.")
+                send_pin_email(email, four_digit_code, password)
+                print("5-digit pin sent to the customer.")
             except Exception as error:
                 print(f"Failed to send email: {error}")
 
+            # Attempt to deregister the account
+            try:
+                driver.get("https://ec.nintendo.com/my/devices/unlink")
+                password_field = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.ID, "reauthenticate-form_pc_button_0"))
+                )
+                password_field.send_keys(password)
+                print("Password entered successfully")
+                ok_button = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.ID, "reauthenticate-form_pc_button_0"))
+                )
+                ok_button.click()
+                print("Continue button clicked!")
 
+                deregister = driver.find_element(By.CSS_SELECTOR, ".bg-nintendo-red")
+                deregister.click()
+                print("Deregister button clicked")
+                confirm_button = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, "button.bg-nintendo-red"))
+                )
+                confirm_button.click()
+                print("Confirm button clicked")
+
+                final_button = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, "button.bg-nintendo-red"))
+                )
+                final_button.click()
+                print("Account has been deregistered")
+
+            except Exception as error:
+                print(f"Error during deregistering process: {error}")
 
         except Exception as error:
-            print(f"Error during WebDriver or automation process - {error}")
+            print(f"Error during WebDriver or automation process: {error}")
 
     finally:
-        # clear cookies and navigate to accounts.nintendo.com/logout
+        # Clear cookies and logout
         driver.delete_all_cookies()
         driver.get("https://accounts.nintendo.com")
-        return four_digit_code,password
-
+        return four_digit_code, password
